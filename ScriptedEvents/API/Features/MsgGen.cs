@@ -10,7 +10,6 @@
     using Exiled.API.Features.Pools;
 
     using PlayerRoles;
-    using Respawning;
 
     using ScriptedEvents.API.Enums;
     using ScriptedEvents.API.Interfaces;
@@ -37,7 +36,7 @@
             { typeof(Door[]), "Door List" },
             { typeof(Room[]), "Room List" },
             { typeof(RoleTypeId), "RoleTypeId (ID / Number)" },
-            { typeof(SpawnableTeamType), "Spawnable Team (ChaosInsurgency OR NineTailedFox)" },
+            { typeof(Faction), "Faction (FoundationEnemy OR FoundationStaff)" },
             { typeof(RoomType), "RoomType (ID / Number)" },
             { typeof(IVariable), "Variable" },
             { typeof(IPlayerVariable), "Player Variable" },

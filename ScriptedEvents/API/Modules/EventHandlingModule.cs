@@ -26,7 +26,6 @@ namespace ScriptedEvents
     using MapGeneration.Distributors;
     using MEC;
     using PlayerRoles;
-    using Respawning;
     using ScriptedEvents.API.Features;
     using ScriptedEvents.API.Modules;
     using ScriptedEvents.Structures;
@@ -70,15 +69,15 @@ namespace ScriptedEvents
         /// <summary>
         /// Gets or sets the most recent respawn type.
         /// </summary>
-        public SpawnableTeamType MostRecentSpawn { get; set; }
+        public Faction MostRecentSpawn { get; set; }
 
         /// <summary>
         /// Gets or sets the spawns by team.
         /// </summary>
-        public Dictionary<SpawnableTeamType, int> SpawnsByTeam { get; set; } = new()
+        public Dictionary<Faction, int> SpawnsByTeam { get; set; } = new()
         {
-            [SpawnableTeamType.ChaosInsurgency] = 0,
-            [SpawnableTeamType.NineTailedFox] = 0,
+            [Faction.FoundationStaff] = 0,
+            [Faction.FoundationEnemy] = 0,
         };
 
         /// <summary>
@@ -431,8 +430,8 @@ namespace ScriptedEvents
             TeslasDisabled = false;
             MostRecentSpawnUnit = string.Empty;
 
-            SpawnsByTeam[SpawnableTeamType.NineTailedFox] = 0;
-            SpawnsByTeam[SpawnableTeamType.ChaosInsurgency] = 0;
+            SpawnsByTeam[Faction.FoundationStaff] = 0;
+            SpawnsByTeam[Faction.FoundationEnemy] = 0;
 
             foreach (var escapedRole in Escapes)
             {
@@ -463,7 +462,7 @@ namespace ScriptedEvents
             SpawnRules.Clear();
             RecentlyRespawned.Clear();
 
-            MostRecentSpawn = SpawnableTeamType.None;
+            MostRecentSpawn = Faction.Unclassified;
         }
 
         public void OnRoundStarted()
@@ -695,11 +694,11 @@ namespace ScriptedEvents
 
         public void OnInteractingLocker(InteractingLockerEventArgs ev)
         {
-            if (ev.Locker is PedestalScpLocker && (DisabledKeys.Contains("PEDESTALS") || DisabledForPlayer("PEDESTALS", ev.Player)))
+            if (ev.InteractingLocker.Base is PedestalScpLocker && (DisabledKeys.Contains("PEDESTALS") || DisabledForPlayer("PEDESTALS", ev.Player)))
             {
                 ev.IsAllowed = false;
             }
-            else if (ev.Locker is not PedestalScpLocker && (DisabledKeys.Contains("LOCKERS") || DisabledForPlayer("LOCKERS", ev.Player)))
+            else if (ev.InteractingLocker.Base is not PedestalScpLocker && (DisabledKeys.Contains("LOCKERS") || DisabledForPlayer("LOCKERS", ev.Player)))
             {
                 ev.IsAllowed = false;
             }

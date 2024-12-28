@@ -51,10 +51,10 @@
         public string Name => "{NEXTWAVE}";
 
         /// <inheritdoc/>
-        public string Description => "The next team to spawn, either NineTailedFox, ChaosInsurgency, or None.";
+        public string Description => "The next team to spawn, either NtfWave, NtfMiniWave, ChaosWave, ChaosMiniWave or None.";
 
         /// <inheritdoc/>
-        public string Value => Respawn.NextKnownTeam.ToString();
+        public string Value => Respawn.NextKnownSpawnableFaction.ToString();
     }
 
     public class LastUnitName : IStringVariable
@@ -93,7 +93,7 @@
         public string Description => "The amount of NTF tickets.";
 
         /// <inheritdoc/>
-        public float Value => Respawn.NtfTickets;
+        public float Value => Respawn.FactionInfluence[Faction.FoundationStaff];
     }
 
     public class ChaosTickets : IFloatVariable
@@ -105,7 +105,7 @@
         public string Description => "The amount of Chaos Insurgency tickets.";
 
         /// <inheritdoc/>
-        public float Value => Respawn.ChaosTickets;
+        public float Value => Respawn.FactionInfluence[Faction.FoundationEnemy];
     }
 
     public class TotalWaves : IFloatVariable
@@ -129,7 +129,16 @@
         public string Description => "The amount of time until the next respawn wave, in seconds.";
 
         /// <inheritdoc/>
-        public float Value => (float)Respawn.TimeUntilSpawnWave.TotalSeconds;
+        public float Value
+        {
+            get
+            {
+                var wave = WaveManager._nextWave as Respawning.Waves.TimeBasedWave;
+                if (wave == null)
+                    return 0;
+                return wave.Timer.SpawnIntervalSeconds;
+            }
+        }
     }
 
     public class TimeSinceLastWave : IFloatVariable
@@ -195,7 +204,7 @@
         public string Description => "Total amount of Chaos Insurgency respawns.";
 
         /// <inheritdoc/>
-        public float Value => MainPlugin.Handlers.SpawnsByTeam[SpawnableTeamType.ChaosInsurgency];
+        public float Value => MainPlugin.Handlers.SpawnsByTeam[Faction.FoundationEnemy];
     }
 
     public class MtfSpawns : IFloatVariable
@@ -207,6 +216,6 @@
         public string Description => "Total amount of Mobile Task Force respawns.";
 
         /// <inheritdoc/>
-        public float Value => MainPlugin.Handlers.SpawnsByTeam[SpawnableTeamType.NineTailedFox];
+        public float Value => MainPlugin.Handlers.SpawnsByTeam[Faction.FoundationStaff];
     }
 }

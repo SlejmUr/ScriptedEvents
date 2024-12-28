@@ -19,7 +19,6 @@ namespace ScriptedEvents.API.Modules
     using Exiled.Events.Features;
     using Exiled.Loader;
     using MapGeneration.Distributors;
-    using Respawning;
     using ScriptedEvents.API.Enums;
     using ScriptedEvents.API.Extensions;
     using ScriptedEvents.API.Features;
@@ -31,17 +30,17 @@ namespace ScriptedEvents.API.Modules
         /// <summary>
         /// Gets an array of Event "Handler" types defined by Exiled.
         /// </summary>
-        public static Type[] HandlerTypes { get; private set; }
+        public static Type[] HandlerTypes { get; private set; } = [];
 
-        public static EventScriptModule Singleton { get; private set; }
+        public static EventScriptModule? Singleton { get; private set; }
 
         public override string Name => "EventScriptModule";
 
         public List<Tuple<PropertyInfo, Delegate>> StoredDelegates { get; } = new();
 
-        public Dictionary<string, List<string>> CurrentEventData { get; set; }
+        public Dictionary<string, List<string>> CurrentEventData { get; set; } = [];
 
-        public Dictionary<string, List<string>> CurrentCustomEventData { get; set; }
+        public Dictionary<string, List<string>> CurrentCustomEventData { get; set; } = [];
 
         public List<string> DynamicallyConnectedEvents { get; set; } = new();
 
@@ -51,12 +50,12 @@ namespace ScriptedEvents.API.Modules
         {
             Type evType = typeof(T);
             string evName = evType.Name.Replace("EventArgs", string.Empty);
-            Singleton.OnAnyEvent(evName, ev);
+            Singleton!.OnAnyEvent(evName, ev);
         }
 
         public static void OnNonArgumentedEvent()
         {
-            Singleton.OnAnyEvent(new StackFrame(2).GetMethod().Name.Replace("EventArgs", string.Empty));
+            Singleton!.OnAnyEvent(new StackFrame(2).GetMethod().Name.Replace("EventArgs", string.Empty));
         }
 
         public override void Init()
@@ -70,7 +69,7 @@ namespace ScriptedEvents.API.Modules
                     .Assembly.GetTypes()
                     .Where(t => t.FullName?.Equals($"Exiled.Events.Handlers.{t.Name}") is true).ToArray();
             }
-            catch (Exception ex)
+            catch
             {
                 Logger.Error($"Fetching HandlerTypes failed! Exiled.Events does not exist in loaded plugins:\n{string.Join(", ", Loader.Plugins.Select(x => x.Name))}");
             }
@@ -153,7 +152,7 @@ namespace ScriptedEvents.API.Modules
             foreach (Type handler in HandlerTypes)
             {
                 // Credit to DevTools & Yamato for below code.
-                Delegate @delegate = null;
+                Delegate @delegate;
                 PropertyInfo propertyInfo = handler.GetProperty(key);
 
                 if (propertyInfo is null)
@@ -180,7 +179,7 @@ namespace ScriptedEvents.API.Modules
                     continue;
                 }
 
-                subscribe.Invoke(propertyInfo.GetValue(MainPlugin.Handlers), new object[] { @delegate });
+                subscribe.Invoke(propertyInfo.GetValue(MainPlugin.Handlers), [@delegate]);
                 StoredDelegates.Add(new Tuple<PropertyInfo, Delegate>(propertyInfo, @delegate));
 
                 made = true;
@@ -204,14 +203,14 @@ namespace ScriptedEvents.API.Modules
                 EventInfo eventInfo = propertyInfo.PropertyType.GetEvent("InnerEvent", (BindingFlags)(-1));
                 MethodInfo unSubscribe = propertyInfo.PropertyType.GetMethods().First(x => x.Name is "Unsubscribe");
 
-                unSubscribe.Invoke(propertyInfo.GetValue(MainPlugin.Handlers), new[] { handler });
+                unSubscribe.Invoke(propertyInfo.GetValue(MainPlugin.Handlers), [handler]);
                 Logger.Debug($"Removed dynamic connection for event '{propertyInfo.Name}'");
             }
 
             StoredDelegates.Clear();
-            CurrentEventData = null;
-            CurrentCustomEventData = null;
-            DynamicallyConnectedEvents = new();
+            CurrentEventData = [];
+            CurrentCustomEventData = [];
+            DynamicallyConnectedEvents = [];
         }
 
         // Code to run when connected event is executed

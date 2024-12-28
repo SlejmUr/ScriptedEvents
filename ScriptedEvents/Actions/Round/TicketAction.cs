@@ -3,8 +3,7 @@
     using System;
 
     using Exiled.API.Features;
-
-    using Respawning;
+    using PlayerRoles;
 
     using ScriptedEvents.API.Enums;
     using ScriptedEvents.API.Extensions;
@@ -38,32 +37,34 @@
                 new("ADD", "Adds tickets to a team."),
                 new("REMOVE", "Removes tickets from a team."),
                 new("SET", "Set's a team's ticket amount.")),
-            new Argument("team", typeof(SpawnableTeamType), "The spawn team (ChaosInsurgency or NineTailedFox).", true),
+            new Argument("team", typeof(Faction), "The spawn team (FoundationEnemy or FoundationStaff).", true),
             new Argument("amount", typeof(int), "The amount to apply.", true),
         };
 
         /// <inheritdoc/>
         public ActionResponse Execute(Script script)
         {
-            SpawnableTeamType team = (SpawnableTeamType)Arguments[1];
-            float amount = (float)Arguments[2];
+            Faction team = (Faction)Arguments[1];
+            int amount = (int)Arguments[2];
 
             switch (Arguments[0].ToUpper())
             {
                 case "ADD":
-                    Respawn.GrantTickets(team, amount);
+                    Respawn.GrantTokens(team, amount);
                     break;
                 case "REMOVE":
-                    Respawn.RemoveTickets(team, amount);
+                    Respawn.RemoveTokens(team, amount);
                     break;
                 case "SET":
                     switch (team)
                     {
-                        case SpawnableTeamType.ChaosInsurgency:
-                            Respawn.ChaosTickets = amount;
+                        case Faction.FoundationEnemy:
+                            Respawn.SetTokens(Exiled.API.Enums.SpawnableFaction.ChaosMiniWave, amount);
+                            Respawn.SetTokens(Exiled.API.Enums.SpawnableFaction.ChaosWave, amount);
                             break;
-                        case SpawnableTeamType.NineTailedFox:
-                            Respawn.NtfTickets = amount;
+                        case Faction.FoundationStaff:
+                            Respawn.SetTokens(Exiled.API.Enums.SpawnableFaction.NtfMiniWave, amount);
+                            Respawn.SetTokens(Exiled.API.Enums.SpawnableFaction.NtfWave, amount);
                             break;
                     }
 

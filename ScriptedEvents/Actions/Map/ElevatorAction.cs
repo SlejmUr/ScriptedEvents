@@ -60,7 +60,7 @@
                         foreach (var door in lift.Doors)
                         {
                             door.ChangeLock(DoorLockType.AdminCommand);
-                            lift.Base.RefreshLocks(lift.Group, door.Base);
+                            lift.Base.UpdateDynamicLock();
                         }
                     };
                     break;
@@ -78,7 +78,7 @@
                             door.DoorLockType = DoorLockType.None;
                             door.ChangeLock(DoorLockType.None);
 
-                            lift.Base.RefreshLocks(lift.Group, door.Base);
+                            lift.Base.UpdateDynamicLock();
                         }
                     };
                     break;
